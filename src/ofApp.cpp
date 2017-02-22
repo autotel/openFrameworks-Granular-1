@@ -26,7 +26,7 @@ void ofApp::setup() {
 
 	ofSoundStreamSetup(2, 0, this, sampleRate, 256, 4);
 
-	loopMaxLength_frames = 100000;
+	loopMaxLength_frames = 10000;
 
 	sample.pointStart_frame = 0;
 	sample.pointEnd_frame = min(loopMaxLength_frames, sample.getLength());
@@ -64,7 +64,7 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-	
+	applyDraggableConstraints();
 
 	ofSetBackgroundColor(0);
 	// draw waveform
@@ -86,11 +86,27 @@ void ofApp::draw() {
 			unsigned int channs = sample.getChannels();
 			for (long a = 0; a < displayLength_frames; a += channs) {
 				long a_frame = sample.pointStart_frame + a;
+
+
 				int rad = sample.getSampleN(a_frame*2)*200 + 300;
+
+
 				float th = (2 * PI * a) / displayLength_frames;
 				ofVertex(sin(th)*rad, cos(th)*rad);
 			}
 		ofEndShape();
+		//ofCircle(0,0,300);
+		ofSetColor(210, 0, 0);
+		for (int i = 0; i<sample.zeroxsLeft.size(); i++) {
+			if ((sample.zeroxsLeft[i] < sample.pointEnd_frame * sample.getChannels())
+				&& (sample.zeroxsLeft[i] > sample.pointStart_frame * sample.getChannels())) {
+				//´pendant: no need to recalc rad.
+				int rada = 300;
+				int radb = 320;
+				float th = (2 * PI * (sample.zeroxsLeft[i]/sample.getChannels()-sample.pointStart_frame)) / displayLength_frames;
+				ofDrawLine(sin(th)*rada,cos(th)*rada, sin(th)*radb, cos(th)*radb);
+			}
+		}
 	ofPopMatrix();
 	ofPopStyle();
 	// draw the right:
@@ -116,8 +132,8 @@ void ofApp::applyDraggableConstraints() {
 	int width = ofGetWidth();
 	startPointDraggable.position[0] = width*sample.pointStart_frame /sample.getLength_frames();
 	endPointDraggable.position[0] = width*sample.pointEnd_frame / sample.getLength_frames();
-	startPointDraggable.position[1] = 400;
-	endPointDraggable.position[1] = 400;
+	startPointDraggable.position[1] = 450;
+	endPointDraggable.position[1] = 450;
 }
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
@@ -156,24 +172,32 @@ void ofApp::keyReleased(int key) {
 }
 
 void ofApp::setStartFrame(long to) {
-	if(to<sample.getLength_frames())
-	sample.pointStart_frame = to;
-	
+	if (to >= sample.pointEnd_frame) {
+		sample.pointEnd_frame = to + 1;
+	}
+	if (to<sample.getLength_frames())
+		sample.pointStart_frame = to;
+
 	long maxEnd = loopMaxLength_frames + sample.pointStart_frame;
 	maxEnd = min(maxEnd, sample.getLength()*sample.getChannels());
 	if (sample.pointEnd_frame > maxEnd) {
 		sample.pointEnd_frame = maxEnd;
 	}
+	
 };
 void ofApp::setEndFrame(long to) {
-	if (to<sample.getLength_frames())
-	sample.pointEnd_frame = to;
+	if (to <= sample.pointStart_frame) {
+		sample.pointStart_frame = to - 1;
+	}
+	if (to < sample.getLength_frames())
+		sample.pointEnd_frame = to;
 	long minstart = sample.pointEnd_frame - loopMaxLength_frames;
 	minstart = max((long)0, minstart);
 
 	if (minstart > sample.pointStart_frame) {
 		sample.pointStart_frame = minstart;
 	}
+	
 	
 };
 //--------------------------------------------------------------

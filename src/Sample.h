@@ -66,7 +66,9 @@ public:
 
 	long pointStart_frame;
 	long pointEnd_frame;
-
+	
+	vector<unsigned int> zeroxsLeft;
+	void calculateZeroxs();
 private:
 
 

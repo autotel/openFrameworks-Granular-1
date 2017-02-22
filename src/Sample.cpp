@@ -87,7 +87,7 @@ bool Sample::load(string tmpPath) {
 	bool result = read();
 	return result;
 }
-
+/*
 void Sample::returnSamples(vector<float> * _sample) {
 	_sample->clear();
 	//pendant: I want to try mutex instead of pausing/playing later. Does it make sense?
@@ -107,6 +107,21 @@ void Sample::returnSamples(vector<float> * _sample) {
 	setLooping(loopState);
 	setSpeed(tmpSpeed);
 	if (playState) play();
+}*/
+void Sample::calculateZeroxs() {
+	double currentSample = 0;
+	double lastSample = 0;
+	unsigned int chans = getChannels();
+	for (long a = 0; a < getLength(); a += chans) {
+		long a_frame = a/chans;
+		currentSample = getSampleN(a);
+		//pendant: faster positive zero cross calculation
+		if (((currentSample - lastSample > 0) && (currentSample > 0) && (lastSample < 0))||(currentSample==0)) {
+			zeroxsLeft.push_back(a_frame * chans);
+			printf("zerox @ %lld\n", a_frame*chans);
+		}
+		lastSample = currentSample;
+	}
 }
 
 void Sample::generateWaveForm(vector<MiniMaxima> * _waveForm)
@@ -422,6 +437,8 @@ bool Sample::read()
     inFile.close(); // close the input file
 
     soundStatus |= LOADED;
+
+	calculateZeroxs();
 
     return true; // this should probably be something more descriptive
 }
