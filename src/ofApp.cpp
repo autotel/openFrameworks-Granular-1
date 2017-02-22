@@ -83,10 +83,11 @@ void ofApp::draw() {
 		ofTranslate(400, 400);
 		ofBeginShape();
 			long displayLength_frames = sample.pointEnd_frame - sample.pointStart_frame;
-			for (long a = 0; a < displayLength_frames; a += sample.getChannels()) {
-				long a_frame = sample.pointEnd_frame + a;
-				int rad = sample.myData[a_frame]*0.3 + 300;
-				float th = (2 * PI*a) / displayLength_frames;
+			unsigned int channs = sample.getChannels();
+			for (long a = 0; a < displayLength_frames; a += channs) {
+				long a_frame = sample.pointStart_frame + a;
+				int rad = sample.getSampleN(a_frame*2)*200 + 300;
+				float th = (2 * PI * a) / displayLength_frames;
 				ofVertex(sin(th)*rad, cos(th)*rad);
 			}
 		ofEndShape();

@@ -276,7 +276,14 @@ double Sample::update()
 	return(output);
 }
 
+double Sample::getSampleN(long pos) {
 
+	short* buffer = (short *)myData;
+	long remainder = pos - (long)pos;
+
+	output = (double)((1.0 - remainder) * buffer[1 + (long)pos] + remainder * buffer[2 + (long)pos]) / 32767.0;//linear interpolation
+	return(output);
+}
 
 //double Sample::stretch(double pitch, double frequency) {
 //	short* buffer = (short *)myData;

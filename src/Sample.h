@@ -46,6 +46,7 @@ public:
 	void	play();
 	void    stop();
 	double  update();
+	double  getSampleN(long pos);
 
 	//double play(double frequency, double start, double end);
 	//double stretch(double pitch, double frequency);
