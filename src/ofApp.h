@@ -4,6 +4,7 @@
 
 #include "ofMain.h"
 #include "Sample.h"
+#include "draggable.h"
 
 class ofApp : public ofBaseApp {
 
@@ -51,6 +52,9 @@ public:
 	long loopMaxLength;
 
 	void setStartFrame(long);
+
+	draggable startPointDraggable;
+	draggable endPointDraggable;
 };
 
 #endif

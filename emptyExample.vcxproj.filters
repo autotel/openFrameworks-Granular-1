@@ -10,6 +10,9 @@
     <ClCompile Include="src\Sample.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="draggable.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -21,6 +24,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Sample.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="draggable.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

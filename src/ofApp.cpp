@@ -27,6 +27,7 @@ void ofApp::setup() {
 	ofSoundStreamSetup(2, 0, this, sampleRate, 256, 4);
 
 	loopMaxLength = 8192;
+
 	sample.pointStart_frame = 0;
 	sample.pointEnd_frame = min(loopMaxLength, sample.getLength());
 
@@ -97,6 +98,9 @@ void ofApp::draw() {
 
 	ofDrawBitmapString(reportString, 80, 380);
 
+	startPointDraggable.draw();
+	endPointDraggable.draw();
+
 }
 
 
@@ -144,6 +148,9 @@ void ofApp::mouseMoved(int x, int y) {
 	//*
 	int width = ofGetWidth();
 	setStartFrame((sample.getLength()*x / width) / 2);//*/
+
+	startPointDraggable.mouseMoved(x,y);
+	endPointDraggable.mouseMoved(x, y);
 }
 
 //--------------------------------------------------------------
