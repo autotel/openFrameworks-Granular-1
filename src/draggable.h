@@ -9,12 +9,12 @@ public:
 	void onMouseMoved(int, int);
 	void onMouseEnter();
 	void onMouseLeave();
-	void onClick();
+	bool onClick();
 	void onCRelease();
 	void onDrag(int, int);
 	void draw();
-	bool isClicked;
-	bool isUnderMouse;
+	bool isClicked=false;
+	bool isUnderMouse = false;
 	float position[2];
 	float radius;
 };

@@ -26,10 +26,15 @@ void ofApp::setup() {
 
 	ofSoundStreamSetup(2, 0, this, sampleRate, 256, 4);
 
-	loopMaxLength = 8192;
+	loopMaxLength_frames = 100000;
 
 	sample.pointStart_frame = 0;
-	sample.pointEnd_frame = min(loopMaxLength, sample.getLength());
+	sample.pointEnd_frame = min(loopMaxLength_frames, sample.getLength());
+
+
+	applyDraggableConstraints();
+
+	
 
 }
 
@@ -59,6 +64,8 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 
+	
+
 	ofSetBackgroundColor(0);
 	// draw waveform
 	sample.drawWaveForm(5, 500, ofGetWidth() - 10, 100, &waveForm);
@@ -75,10 +82,11 @@ void ofApp::draw() {
 		ofNoFill();
 		ofTranslate(400, 400);
 		ofBeginShape();
-		long displayLength_spls = min(sample.pointEnd_frame * 2, sample.getLength() - (sample.pointStart_frame * 2));
-			for (long a_frame = sample.pointStart_frame; a_frame < displayLength_spls/2; a_frame +=sample.getChannels()) {
+			long displayLength_frames = sample.pointEnd_frame - sample.pointStart_frame;
+			for (long a = 0; a < displayLength_frames; a += sample.getChannels()) {
+				long a_frame = sample.pointEnd_frame + a;
 				int rad = sample.myData[a_frame]*0.3 + 300;
-				float th = (4 * PI*a_frame) / displayLength_spls;
+				float th = (2 * PI*a) / displayLength_frames;
 				ofVertex(sin(th)*rad, cos(th)*rad);
 			}
 		ofEndShape();
@@ -103,7 +111,13 @@ void ofApp::draw() {
 
 }
 
-
+void ofApp::applyDraggableConstraints() {
+	int width = ofGetWidth();
+	startPointDraggable.position[0] = width*sample.pointStart_frame /sample.getLength_frames();
+	endPointDraggable.position[0] = width*sample.pointEnd_frame / sample.getLength_frames();
+	startPointDraggable.position[1] = 400;
+	endPointDraggable.position[1] = 400;
+}
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	static bool toggle = false;
@@ -139,18 +153,38 @@ void ofApp::keyPressed(int key) {
 void ofApp::keyReleased(int key) {
 
 }
+
 void ofApp::setStartFrame(long to) {
-	sample.pointStart_frame = 0;
-	sample.pointEnd_frame = min(sample.pointStart_frame+loopMaxLength, sample.getLength());
+	if(to<sample.getLength_frames())
+	sample.pointStart_frame = to;
+	
+	long maxEnd = loopMaxLength_frames + sample.pointStart_frame;
+	maxEnd = min(maxEnd, sample.getLength()*sample.getChannels());
+	if (sample.pointEnd_frame > maxEnd) {
+		sample.pointEnd_frame = maxEnd;
+	}
+};
+void ofApp::setEndFrame(long to) {
+	if (to<sample.getLength_frames())
+	sample.pointEnd_frame = to;
+	long minstart = sample.pointEnd_frame - loopMaxLength_frames;
+	minstart = max((long)0, minstart);
+
+	if (minstart > sample.pointStart_frame) {
+		sample.pointStart_frame = minstart;
+	}
+	
 };
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y) {
 	//*
 	int width = ofGetWidth();
-	setStartFrame((sample.getLength()*x / width) / 2);//*/
+	
 
-	startPointDraggable.mouseMoved(x,y);
-	endPointDraggable.mouseMoved(x, y);
+	startPointDraggable.onMouseMoved(x,y);
+	endPointDraggable.onMouseMoved(x, y);
+	//applyDraggableConstraints();
+	//setStartFrame((sample.getLength()*x / width) / sample.getChannels());//*/
 }
 
 //--------------------------------------------------------------
@@ -159,17 +193,27 @@ void ofApp::mouseDragged(int x, int y, int button) {
 	pan = (float)x / (float)width;
 	float height = (float)ofGetHeight();
 	float heightPct = ((height - y) / height);*/
+	mouseMoved(x, y);
+	int width = ofGetWidth();
+	long ssf = ((long)(sample.getLength_frames()*startPointDraggable.position[0])) / width;
+	setStartFrame(ssf);
+	setEndFrame(((long)(sample.getLength_frames()*endPointDraggable.position[0])) / width);
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
 	/*bRingModulation = true;*/
+	if (startPointDraggable.onClick()) {
+	}else if(endPointDraggable.onClick()){}
+	
 }
 
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button) {
 	/*bRingModulation = false;*/
+	startPointDraggable.onCRelease();
+	endPointDraggable.onCRelease();
 }
 
 //--------------------------------------------------------------

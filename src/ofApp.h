@@ -49,12 +49,15 @@ public:
 
 	long loopStartFrame;
 	long loopEndFrame;
-	long loopMaxLength;
+	long loopMaxLength_frames;
 
 	void setStartFrame(long);
+	void setEndFrame(long);
 
 	draggable startPointDraggable;
 	draggable endPointDraggable;
+
+	void applyDraggableConstraints();
 };
 
 #endif

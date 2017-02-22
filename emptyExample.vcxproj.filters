@@ -10,7 +10,7 @@
     <ClCompile Include="src\Sample.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="draggable.cpp">
+    <ClCompile Include="src\draggable.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -26,7 +26,7 @@
     <ClInclude Include="src\Sample.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="draggable.h">
+    <ClInclude Include="src\draggable.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

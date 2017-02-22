@@ -54,6 +54,7 @@ public:
     int		getChannels();
     int		getSampleRate();
 	long	getLength();
+	long	getLength_frames();
 
 	void	returnSamples(vector<float> * _WaveForm);
 	void	generateWaveForm(vector<MiniMaxima> * _WaveForm);

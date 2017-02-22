@@ -190,7 +190,8 @@ void Sample::drawWaveForm(int _x, int _y, int _w, int _h, vector<MiniMaxima> * _
     {
         ofLine(position/waveFormDisplayScale, -(float)_h*0.5, position/waveFormDisplayScale, (float)_h*1.5);
     }
-
+	ofNoFill();
+	ofDrawRectangle(2*pointStart_frame/waveFormDisplayScale, -(float)_h*0.5, 2 * (pointEnd_frame-pointStart_frame) / waveFormDisplayScale, (float)_h*2.0);
 	glPopMatrix();
 }
 
@@ -269,8 +270,8 @@ double Sample::update()
             return 0;
 	    }
 	}
-
-	output = (double) ((1.0-remainder) * buffer[1+ (long) position] + remainder * buffer[2+(long) position])/32767.0;//linear interpolation
+	//if(getLength()>= 2 + (long)position)
+	output = (double)((1.0 - remainder) * buffer[1 + (long)position] + remainder * buffer[2 + (long)position]) / 32767.0;//linear interpolation
 
 	return(output);
 }
@@ -290,6 +291,12 @@ long Sample::getLength()
 	long length;
 	length=myDataSize*0.5;
 	return(length);
+}
+long Sample::getLength_frames()
+{
+	long length;
+	length = myDataSize*0.5;
+	return(length/myChannels);
 }
 double Sample::getPosition()
 {
