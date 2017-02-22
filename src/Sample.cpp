@@ -20,9 +20,11 @@ Sample::~Sample()
 // empty constructor
 Sample::Sample()
 {
-    position = 0;
-    speed = 1.0;
-    soundStatus = NONE;
+	position = 0;
+	speed = 1.0;
+	soundStatus = NONE;
+	pointStart_frame = 0;
+	pointEnd_frame = 0;
 }
 
 // constructor takes a wav path
@@ -31,6 +33,8 @@ Sample::Sample(string tmpPath)
     position = 0;
     speed = 1.0;
     soundStatus = NONE;
+
+	pointStart_frame = 0;
 
     myPath = tmpPath;
     read();
@@ -46,6 +50,8 @@ void Sample::setLooping(bool loop)
 {
     if(loop) {
         soundStatus |= LOOPING;
+		if (pointEnd_frame == 0)
+			pointEnd_frame = getLength()/myChannels;
     }
     else {
         soundStatus &= ~LOOPING;
@@ -81,6 +87,7 @@ bool Sample::load(string tmpPath) {
 	bool result = read();
 	return result;
 }
+
 void Sample::returnSamples(vector<float> * _sample) {
 	_sample->clear();
 	//pendant: I want to try mutex instead of pausing/playing later. Does it make sense?
@@ -237,13 +244,14 @@ double Sample::update()
     long length=getLength();
 	double remainder;
 	short* buffer = (short *)myData;
+
 	position=(position+speed);
 	remainder = position - (long) position;
 
     // check if reached EOF
-	if ((long) position>length) {
+	if (((long) position>length)|| ((long)position>(pointEnd_frame*myChannels))) {
 	    if(getIsLooping()) {
-            position=0;
+            position=pointStart_frame*myChannels;
 	    }
         else {
             soundStatus &= ~PLAYING;
@@ -251,10 +259,10 @@ double Sample::update()
 	    }
 	}
 
-    //check if position less than zero (reverse)
-	if ((long) position < 0) {
+    //check if position less than pointStart_frame (reverse)
+	if ((long) position < pointStart_frame*myChannels) {
 	    if(getIsLooping()) {
-            position = length;
+            position = pointEnd_frame*myChannels;
 	    }
         else {
             soundStatus &= ~PLAYING;

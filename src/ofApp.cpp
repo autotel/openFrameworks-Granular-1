@@ -27,8 +27,8 @@ void ofApp::setup() {
 	ofSoundStreamSetup(2, 0, this, sampleRate, 256, 4);
 
 	loopMaxLength = 8192;
-	loopStartFrame = 0;
-	loopEndFrame = min(loopMaxLength, sample.getLength());
+	sample.pointStart_frame = 0;
+	sample.pointEnd_frame = min(loopMaxLength, sample.getLength());
 
 }
 
@@ -74,8 +74,8 @@ void ofApp::draw() {
 		ofNoFill();
 		ofTranslate(400, 400);
 		ofBeginShape();
-		long displayLength_spls = min(loopEndFrame * 2, sample.getLength() - (loopStartFrame * 2));
-			for (long a_frame = loopStartFrame; a_frame < displayLength_spls/2; a_frame +=sample.getChannels()) {
+		long displayLength_spls = min(sample.pointEnd_frame * 2, sample.getLength() - (sample.pointStart_frame * 2));
+			for (long a_frame = sample.pointStart_frame; a_frame < displayLength_spls/2; a_frame +=sample.getChannels()) {
 				int rad = sample.myData[a_frame]*0.3 + 300;
 				float th = (4 * PI*a_frame) / displayLength_spls;
 				ofVertex(sin(th)*rad, cos(th)*rad);
@@ -136,8 +136,8 @@ void ofApp::keyReleased(int key) {
 
 }
 void ofApp::setStartFrame(long to) {
-	loopStartFrame = 0;
-	loopEndFrame = min(loopStartFrame+loopMaxLength, sample.getLength());
+	sample.pointStart_frame = 0;
+	sample.pointEnd_frame = min(sample.pointStart_frame+loopMaxLength, sample.getLength());
 };
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y) {

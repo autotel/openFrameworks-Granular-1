@@ -62,6 +62,9 @@ public:
     // public variables
     char* 	myData;
 
+	long pointStart_frame;
+	long pointEnd_frame;
+
 private:
 
 
