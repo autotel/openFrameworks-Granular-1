@@ -9,10 +9,10 @@ void ofApp::setup() {
 	sampleRate = 44100;
 	bufferSize=  1024;
 
-	sample = Sample("Kupferberg-Tuli_No-Deposit.wav");
+	//sample = Sample();
 	//while (!sample.isLoaded) {}
-	sampler[0].setup(sample, 100, 100);
-	sampler[0].sample = sample;
+	sampler[0].setup("Kupferberg-Tuli_No-Deposit.wav", 100, 100);
+	
 	
 
 

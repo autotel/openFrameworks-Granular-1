@@ -137,8 +137,10 @@ void Sample::setPointsSnapping(long start_spl, long end_spl) {
 	}
 	startZerox = nearest_index_st;
 	endZerox = nearest_index_end;
-	pointStart_frame = zeroxsLeft[nearest_index_st]/myChannels;
-	pointEnd_frame = zeroxsLeft[nearest_index_end] / myChannels;
+	if (nearest_index_st > 0&& nearest_index_st < zeroxsLeft.size()) {
+		pointStart_frame = zeroxsLeft[nearest_index_st] / myChannels;
+		pointEnd_frame = zeroxsLeft[nearest_index_end] / myChannels;
+	}
 }
 void Sample::snapPoints() {
 	setPointsSnapping(pointStart_frame*myChannels, pointEnd_frame*myChannels);

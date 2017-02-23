@@ -13,7 +13,7 @@ public:
 	GranularSampler();
 	~GranularSampler();
 	//runtime events
-	void setup(Sample&sampleassoc,int x,int y);
+	void setup(string path,int x,int y);
 	void controlUpdate();
 	void draw();
 	//user interaction listeners
@@ -24,7 +24,7 @@ public:
 	//wave memory
 	float requestNextBakedSample(unsigned int);
 	vector<MiniMaxima> waveForm;
-	Sample * _sample;
+
 	Sample sample;
 	mutex audioMutex;//avoids small sound loop to be read by two threads at the same time
 

@@ -4,15 +4,14 @@ GranularSampler::GranularSampler()
 {
 }
 
-void GranularSampler::setup(Sample & sampleassoc, int x, int y)
+void GranularSampler::setup(string path, int x, int y)
 {
-	/*sample.load(sampleToLoad); // supports mono or stereo .wav files
-	
+	sample.load(path); // supports mono or stereo .wav files
+	sample.setLooping(true);
+	sample.play();
 	sample.generateWaveForm(&waveForm);
-	*/
 
-	//_sample = &sampleassoc;
-	 _sample = &sampleassoc;
+
 
 	printf("mypath: %s", sample.myPath);
 
