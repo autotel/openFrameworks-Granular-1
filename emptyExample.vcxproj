@@ -173,12 +173,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\draggable.cpp" />
+    <ClCompile Include="src\GranularSampler.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
     <ClCompile Include="src\Sample.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\draggable.h" />
+    <ClInclude Include="src\GranularSampler.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="src\Sample.h" />
   </ItemGroup>

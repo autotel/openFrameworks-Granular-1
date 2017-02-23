@@ -3,8 +3,8 @@
 
 
 #include "ofMain.h"
-#include "Sample.h"
-#include "draggable.h"
+#include "GranularSampler.h"
+
 
 class ofApp : public ofBaseApp {
 
@@ -28,44 +28,24 @@ public:
 
 	float 	pan;
 	int		sampleRate;
+	int bufferSize;
 	bool 	bRingModulation;
 	float 	volume;
 	float   speed;
 	int		bufferSamples;
 
+
 	float 	* lAudio;
 	float   * rAudio;
 
 	
-
-	vector<MiniMaxima> waveForm;
-
-	Sample sample;
+	GranularSampler sampler[2];
+	
 
 	float deltax;
 	float deltapos;
 	float widthPct;
 
-
-	long loopStartFrame;
-	long loopEndFrame;
-	long loopMaxLength_frames;
-
-	void setStartFrame(long);
-	void setEndFrame(long);
-
-	draggable startPointDraggable;
-	draggable endPointDraggable;
-
-	void applyDraggableConstraints();
-
-	vector<double> bakedWave_left;
-	vector<double> bakedWaveCopy_left;
-
-	long bakedWaveSize = 0;
-	bool updateBakedWave_flag = false;
-	unsigned int waveHeader = 0;
-	mutex audioMutex;
 };
 
 #endif
