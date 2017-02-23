@@ -1,6 +1,6 @@
 #ifndef _TEST_APP
 #define _TEST_APP
-
+#define NUMSAMPLERS 4
 
 #include "ofMain.h"
 #include "GranularSampler.h"
@@ -40,7 +40,10 @@ public:
 	//sample loader is passed to granulars
 	Sample sample;
 	
-	GranularSampler sampler[2];
+	GranularSampler sampler[NUMSAMPLERS];
+
+	vector<MiniMaxima> waveForm;
+
 	
 
 	float deltax;

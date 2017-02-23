@@ -11,7 +11,14 @@ void ofApp::setup() {
 
 	//sample = Sample();
 	//while (!sample.isLoaded) {}
-	sampler[0].setup("Kupferberg-Tuli_No-Deposit.wav", 100, 100);
+
+	sample.load("Kupferberg-Tuli_No-Deposit.wav"); // supports mono or stereo .wav files
+	sample.setLooping(true);
+	sample.play();
+	sample.generateWaveForm(&waveForm);
+
+	for (int s = 0; s < NUMSAMPLERS;s++)
+		sampler[s].setup(sample, 100, 100*s);
 	
 	
 
@@ -42,19 +49,20 @@ void ofApp::update() {
 	last_x = curr_x;
 	curr_x = mouseX;
 	deltax = (1.0f + fabs(curr_x - last_x)) / 1.0f;
-
-	sampler[0].controlUpdate();
+	for (int s = 0; s < NUMSAMPLERS; s++)
+	sampler[s].controlUpdate();
 
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-	
+	if (sampler[0].startPointDraggable.isClicked)
+	sample.drawWaveForm(0, 0, ofGetWidth(), 100, &waveForm);
 
 	ofSetBackgroundColor(0);
-	
-	sampler[0].draw();
+	for (int s = 0; s < NUMSAMPLERS; s++)
+	sampler[s].draw();
 
 	ofSetColor(255);
 	char reportString[255];
@@ -110,7 +118,8 @@ void ofApp::keyReleased(int key) {
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y) {
-	sampler[0].mouseMoved(x, y);
+	for (int s = 0; s < NUMSAMPLERS; s++)
+	sampler[s].mouseMoved(x, y);
 }
 
 //--------------------------------------------------------------
@@ -120,20 +129,23 @@ void ofApp::mouseDragged(int x, int y, int button) {
 	float height = (float)ofGetHeight();
 	float heightPct = ((height - y) / height);*/
 	mouseMoved(x, y);
-	sampler[0].mouseDragged(x, y, button);
+	for (int s = 0; s < NUMSAMPLERS; s++)
+	sampler[s].mouseDragged(x, y, button);
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
 	/*bRingModulation = true;*/
-	sampler[0].mousePressed(x, y, button);
+	for (int s = 0; s < NUMSAMPLERS; s++)
+	sampler[s].mousePressed(x, y, button);
 	
 }
 
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button) {
-	sampler[0].mouseReleased(x,y,button);
+	for (int s = 0; s < NUMSAMPLERS; s++)
+	sampler[s].mouseReleased(x,y,button);
 }
 
 //--------------------------------------------------------------
@@ -145,7 +157,9 @@ void ofApp::audioRequested(float * output, int bufferSize, int nChannels) {
 
 	unique_lock<mutex> lock(sampler[0].audioMutex);
 	for (int i = 0; i < bufferSize; i++) {
-		float monoSample = sampler[0].requestNextBakedSample(0);
+		float monoSample = 0;
+		for (int s = 0; s < NUMSAMPLERS; s++)
+			monoSample += sampler[s].requestNextBakedSample(0)/NUMSAMPLERS;
 		output[i*nChannels] = monoSample;
 		output[i*nChannels +1] = monoSample;
 

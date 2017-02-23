@@ -4,15 +4,10 @@ GranularSampler::GranularSampler()
 {
 }
 
-void GranularSampler::setup(string path, int x, int y)
+void GranularSampler::setup(Sample & _sample, int x, int y)
 {
-	sample.load(path); // supports mono or stereo .wav files
-	sample.setLooping(true);
-	sample.play();
-	sample.generateWaveForm(&waveForm);
 
-
-
+	sample = _sample;
 	printf("mypath: %s", sample.myPath);
 
 	loopMaxLength_frames = 10000;
@@ -55,8 +50,7 @@ void GranularSampler::draw()
 	ofNoFill();
 	// draw straigth waveform 
 	ofSetColor(0,40,40);
-	if (startPointDraggable.isClicked)
-		sample.drawWaveForm(0, 0, ofGetWidth(), 100, &waveForm);
+	
 	ofTranslate(drawingCenter[0], drawingCenter[1]);
 		
 		
