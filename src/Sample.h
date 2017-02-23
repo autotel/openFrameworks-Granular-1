@@ -75,6 +75,9 @@ public:
 	long startZerox;
 	long endZerox;
 
+	bool isLoaded = false;
+
+	string  myPath;
 private:
 
 
@@ -83,7 +86,6 @@ private:
             //Bad = Corrupt | Busy
 
 	//char* 	myPath;
-	string  myPath;
 	int 	myChunkSize;
 	int		mySubChunk1Size;
 	short 	myFormat;

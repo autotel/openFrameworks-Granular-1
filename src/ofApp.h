@@ -37,7 +37,8 @@ public:
 
 	float 	* lAudio;
 	float   * rAudio;
-
+	//sample loader is passed to granulars
+	Sample sample;
 	
 	GranularSampler sampler[2];
 	

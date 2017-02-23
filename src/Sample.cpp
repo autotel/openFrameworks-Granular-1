@@ -193,7 +193,7 @@ void Sample::generateWaveForm(vector<MiniMaxima> * _waveForm)
 
 void Sample::drawWaveForm(int _x, int _y, int _w, int _h, vector<MiniMaxima> * _waveForm)
 {
-	ofSetColor(0, 255, 0);
+	//ofSetColor(0, 255, 0);
 	float waveFormZoomX = (float)_waveForm->size()/(float)_w;
 
 	glPushMatrix();
@@ -201,16 +201,16 @@ void Sample::drawWaveForm(int _x, int _y, int _w, int _h, vector<MiniMaxima> * _
 	glTranslated(_x, _y, 0);
 
 	for (unsigned int i = 1; i < _waveForm->size(); i++){
-	    if(myChannels == 1) {
+	    /*if(myChannels == 1) {*/
             ofLine((i-1)/waveFormZoomX, _h + (int)(_waveForm->at(i-1).minR*_h), i/waveFormZoomX, _h +  (int)(_waveForm->at(i).maxR*_h));
             ofLine(i/waveFormZoomX, _h + (int)(_waveForm->at(i).maxR*_h), i/waveFormZoomX, _h + (int) (_waveForm->at(i).minR*_h));
-	    } else {
+	    /*} else {
             ofLine((i-1)/waveFormZoomX, (int)(_waveForm->at(i-1).minL*_h), i/waveFormZoomX, (int)(_waveForm->at(i).maxL*_h));
             ofLine(i/waveFormZoomX, (int)(_waveForm->at(i).maxL*_h), i/waveFormZoomX, (int) (_waveForm->at(i).minL*_h));
 
             ofLine((i-1)/waveFormZoomX, _h + (int)(_waveForm->at(i-1).minR*_h), i/waveFormZoomX, _h +  (int)(_waveForm->at(i).maxR*_h));
             ofLine(i/waveFormZoomX, _h + (int)(_waveForm->at(i).maxR*_h), i/waveFormZoomX, _h + (int) (_waveForm->at(i).minR*_h));
-	    }
+	    }*/
 	}
 
 	
@@ -314,9 +314,12 @@ double Sample::getSampleN(long pos) {
 
 	short* buffer = (short *)myData;
 	long remainder = pos - (long)pos;
+	if (soundStatus&LOADED) {
+		output = (double)((1.0 - remainder) * buffer[1 + (long)pos] + remainder * buffer[2 + (long)pos]) / 32767.0;//linear interpolation
+		return(output);
+	}
+	else { return(0); }
 
-	output = (double)((1.0 - remainder) * buffer[1 + (long)pos] + remainder * buffer[2 + (long)pos]) / 32767.0;//linear interpolation
-	return(output);
 }
 
 //double Sample::stretch(double pitch, double frequency) {
@@ -329,15 +332,22 @@ double Sample::getSampleN(long pos) {
 
 long Sample::getLength()
 {
-	long length;
-	length=myDataSize*0.5;
-	return(length);
+
+		long length;
+		length = myDataSize*0.5;
+		return(length);
+		return 0;
+
 }
 long Sample::getLength_frames()
 {
-	long length;
-	length = myDataSize*0.5;
-	return(length/myChannels);
+
+		long length;
+		length = myDataSize*0.5;
+		if (myChannels != 0) {
+			return(length / myChannels);
+		}
+		return 0;
 }
 double Sample::getPosition()
 {
@@ -456,6 +466,7 @@ bool Sample::read()
     inFile.close(); // close the input file
 
     soundStatus |= LOADED;
+	isLoaded = true;
 
 	calculateZeroxs();
 

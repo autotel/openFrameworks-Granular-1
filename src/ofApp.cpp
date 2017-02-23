@@ -8,8 +8,19 @@ void ofApp::setup() {
 	ofSetFrameRate(30);
 	sampleRate = 44100;
 	bufferSize=  1024;
+
+	sample = Sample("Kupferberg-Tuli_No-Deposit.wav");
+	//while (!sample.isLoaded) {}
+	sampler[0].setup(sample, 100, 100);
+	sampler[0].sample = sample;
+	
+
+
+	
+
 	ofSoundStreamSetup(2, 0, this, sampleRate, bufferSize, 4);
-	sampler[0].setup("Kupferberg-Tuli_No-Deposit.wav");
+
+
 	lAudio = new float[bufferSize * 2];
 }
 
@@ -48,8 +59,8 @@ void ofApp::draw() {
 	ofSetColor(255);
 	char reportString[255];
 	sprintf(reportString, 
-		"startZerox: %ld \nendZerox: %ld \nspeed: (%f)\n", 
-		sampler[0].sample.startZerox, sampler[0].sample.endZerox, speed);
+		"startZerox: %ld \nendZerox: %ld \nspeed: (%f)\nllen_fr: %ld", 
+		sampler[0].sample.startZerox, sampler[0].sample.endZerox, speed,sampler[0].sample.pointStart_frame- sampler[0].sample.pointEnd_frame);
 
 	ofDrawBitmapString(reportString, 80, 380);
 
@@ -138,8 +149,8 @@ void ofApp::audioRequested(float * output, int bufferSize, int nChannels) {
 		output[i*nChannels] = monoSample;
 		output[i*nChannels +1] = monoSample;
 
-		lAudio[i+bufferSize] = lAudio[i];
-		lAudio[i] = output[i];
+		/*lAudio[i+bufferSize] = lAudio[i];*/
+		//lAudio[i] = output[i];
 	}
 	/*
 	waveHeader = waveHeader%bakedWaveSize;

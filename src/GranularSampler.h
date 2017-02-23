@@ -13,7 +13,7 @@ public:
 	GranularSampler();
 	~GranularSampler();
 	//runtime events
-	void setup(string);
+	void setup(Sample&sampleassoc,int x,int y);
 	void controlUpdate();
 	void draw();
 	//user interaction listeners
@@ -24,22 +24,21 @@ public:
 	//wave memory
 	float requestNextBakedSample(unsigned int);
 	vector<MiniMaxima> waveForm;
+	Sample * _sample;
 	Sample sample;
 	mutex audioMutex;//avoids small sound loop to be read by two threads at the same time
 
 
-
-
 	long loopStartFrame;
 	long loopEndFrame;
-	long loopTargetLength;
+	long loopTargetLength=1000;
 	long loopMaxLength_frames;
 
 	void setStartFrame(long);
 	void setLength(long);
 
 	draggable startPointDraggable;
-	draggable endPointDraggable;
+	//draggable endPointDraggable;
 
 	void applyDraggableConstraints();
 
@@ -50,6 +49,8 @@ public:
 	bool updateBakedWave_flag = false;
 	int waveHeader = 0;
 
+	int drawingCenter[2];
+	int drawingSize = 300;
 	
 };
 

@@ -4,20 +4,30 @@ GranularSampler::GranularSampler()
 {
 }
 
-void GranularSampler::setup(string sampleToLoad)
+void GranularSampler::setup(Sample & sampleassoc, int x, int y)
 {
-	sample.load(sampleToLoad); // supports mono or stereo .wav files
-	sample.setLooping(true);
-	sample.play();
+	/*sample.load(sampleToLoad); // supports mono or stereo .wav files
+	
 	sample.generateWaveForm(&waveForm);
+	*/
+
+	//_sample = &sampleassoc;
+	 _sample = &sampleassoc;
+
+	printf("mypath: %s", sample.myPath);
 
 	loopMaxLength_frames = 10000;
+
 	sample.pointStart_frame = 0;
 	sample.pointEnd_frame = min(loopMaxLength_frames, sample.getLength());
+
 	applyDraggableConstraints();
 	unique_lock<mutex> lock(audioMutex);
 	bakedWave_left = { 0, 0 };
 	updateBakedWave_flag = true;
+
+	drawingCenter[0] = x;
+	drawingCenter[1] = y;
 }
 
 void GranularSampler::controlUpdate() {
@@ -41,15 +51,16 @@ void GranularSampler::controlUpdate() {
 
 void GranularSampler::draw()
 {
-	
-
 	ofPushStyle();
 	ofPushMatrix();
 	ofNoFill();
-	ofTranslate(400, 400);
-		// draw straigth waveform 
-		sample.drawWaveForm(5, 200, ofGetWidth() - 10, 100, &waveForm);
-
+	// draw straigth waveform 
+	ofSetColor(0,40,40);
+	if (startPointDraggable.isClicked)
+		sample.drawWaveForm(0, 0, ofGetWidth(), 100, &waveForm);
+	ofTranslate(drawingCenter[0], drawingCenter[1]);
+		
+		
 		//draw original wave
 		ofSetColor(0, 50, 50);
 		ofBeginShape();
@@ -57,7 +68,7 @@ void GranularSampler::draw()
 		unsigned int channs = sample.getChannels();
 		for (long a = 0; a < displayLength_frames; a += channs) {
 			long a_frame = sample.pointStart_frame + a;
-			int rad = sample.getSampleN(a_frame * 2) * 200 + 300;
+			int rad = sample.getSampleN(a_frame * 2) * (2*drawingSize/3) + drawingSize;
 			float th = (2 * PI * a) / displayLength_frames;
 			ofVertex(sin(th)*rad, cos(th)*rad);
 		}
@@ -68,7 +79,7 @@ void GranularSampler::draw()
 		ofBeginShape();
 		int displayLength = bakedWaveCopy_left.size();
 		for (int a = 0; a < displayLength; a++) {
-			int rad = bakedWaveCopy_left[a] * 200 + 300;
+			int rad = bakedWaveCopy_left[a] * (2*drawingSize/3) + drawingSize;
 			float th = (2 * PI * a) / displayLength;
 			ofVertex(sin(th)*rad, cos(th)*rad);
 		}
@@ -81,8 +92,8 @@ void GranularSampler::draw()
 			if ((sample.zeroxsLeft[i] < sample.pointEnd_frame * sample.getChannels())
 				&& (sample.zeroxsLeft[i] > sample.pointStart_frame * sample.getChannels())) {
 				//´pendant: no need to recalc rad.
-				int rada = 300;
-				int radb = 320;
+				int rada = drawingSize-7;
+				int radb = drawingSize+7;
 				float th = (2 * PI * (sample.zeroxsLeft[i] / sample.getChannels() - sample.pointStart_frame)) / bakedWaveSize;
 				ofDrawLine(sin(th)*rada, cos(th)*rada, sin(th)*radb, cos(th)*radb);
 			}
@@ -91,15 +102,14 @@ void GranularSampler::draw()
 	ofPopStyle();
 
 	startPointDraggable.draw();
-	endPointDraggable.draw();
+	
+	
 }
 
 void GranularSampler::applyDraggableConstraints() {
-	int width = ofGetWidth();
-	startPointDraggable.position[0] = width*sample.pointStart_frame / sample.getLength_frames();
-	endPointDraggable.position[0] = startPointDraggable.position[0]+width*loopTargetLength / sample.getLength_frames();
-	startPointDraggable.position[1] = 450;
-	endPointDraggable.position[1] = 450;
+
+	startPointDraggable.position[0] = drawingCenter[0]+drawingSize*sample.pointStart_frame / sample.getLength_frames();
+	startPointDraggable.position[1] = drawingCenter[1];
 }
 
 void GranularSampler::setStartFrame(long to) {
@@ -128,34 +138,33 @@ void GranularSampler::setLength(long to) {
 };
 
 void GranularSampler::mouseMoved(int x, int y) {
-	int width = ofGetWidth();
+
 	startPointDraggable.onMouseMoved(x, y);
-	endPointDraggable.onMouseMoved(x, y);
 }
 
 void GranularSampler::mouseDragged(int x, int y, int button)
 {
+	
 	int width = ofGetWidth();
 
-	long ssf = ((long)(sample.getLength_frames()*startPointDraggable.position[0])) / width;
+	long ssf = ((long)(sample.getLength_frames()*startPointDraggable.position[0]- drawingCenter[0])) / width;
+
 	setStartFrame(ssf);
-	long esf = ((long)(sample.getLength_frames()*endPointDraggable.position[0])) / width;
-	setLength(esf-ssf);
 
 	applyDraggableConstraints();
 }
 
 void GranularSampler::mousePressed(int x, int y, int button)
 {
+
 	if (startPointDraggable.onClick()) {
 	}
-	else if (endPointDraggable.onClick()) {}
 }
 
 void GranularSampler::mouseReleased(int x, int y, int button)
 {
+
 	startPointDraggable.onCRelease();
-	endPointDraggable.onCRelease();
 }
 
 float GranularSampler::requestNextBakedSample(unsigned int nChannels)
