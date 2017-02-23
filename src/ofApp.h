@@ -58,6 +58,14 @@ public:
 	draggable endPointDraggable;
 
 	void applyDraggableConstraints();
+
+	vector<double> bakedWave_left;
+	vector<double> bakedWaveCopy_left;
+
+	long bakedWaveSize = 0;
+	bool updateBakedWave_flag = false;
+	unsigned int waveHeader = 0;
+	mutex audioMutex;
 };
 
 #endif

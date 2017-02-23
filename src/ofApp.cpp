@@ -33,8 +33,9 @@ void ofApp::setup() {
 
 
 	applyDraggableConstraints();
-
-	
+	unique_lock<mutex> lock(audioMutex);
+	bakedWave_left = { 0, 0};
+	updateBakedWave_flag = true;
 
 }
 
@@ -57,14 +58,31 @@ void ofApp::update() {
 	curr_x = mouseX;
 	deltax = (1.0f + fabs(curr_x - last_x)) / 1.0f;
 
+	if (updateBakedWave_flag&&sample.pointStart_frame>0) {
+		unique_lock<mutex> lock(audioMutex);
+		bakedWave_left.clear();
+		long waveSize_spls = (sample.pointEnd_frame - sample.pointStart_frame)*2;
+		unsigned int channs = sample.getChannels();
+		long startPoint_spl = sample.pointStart_frame * 2;
+		for (long a = 0; a < waveSize_spls; a += channs) {
+			long sample_i = a + startPoint_spl;
+			double oppoSpl = sample.getSampleN(startPoint_spl + ((a+ waveSize_spls/2) % waveSize_spls));
+			double thisSpl = (sample.getSampleN(sample_i) + oppoSpl) / 2;
+			bakedWave_left.push_back(thisSpl);
+		}
+		bakedWaveCopy_left=vector<double>(bakedWave_left);
+		bakedWaveSize = bakedWave_left.size();
+		updateBakedWave_flag = false;
 
+
+	}
 
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-	applyDraggableConstraints();
+	
 
 	ofSetBackgroundColor(0);
 	// draw waveform
@@ -81,20 +99,32 @@ void ofApp::draw() {
 	ofPushMatrix();
 		ofNoFill();
 		ofTranslate(400, 400);
+		
+		//draw original wave
+		ofSetColor(0, 50, 50);
 		ofBeginShape();
-			long displayLength_frames = sample.pointEnd_frame - sample.pointStart_frame;
-			unsigned int channs = sample.getChannels();
+		long displayLength_frames = sample.pointEnd_frame - sample.pointStart_frame;
+		unsigned int channs = sample.getChannels();
 			for (long a = 0; a < displayLength_frames; a += channs) {
 				long a_frame = sample.pointStart_frame + a;
-
-
-				int rad = sample.getSampleN(a_frame*2)*200 + 300;
-
-
+				int rad = sample.getSampleN(a_frame * 2) * 200 + 300;
 				float th = (2 * PI * a) / displayLength_frames;
 				ofVertex(sin(th)*rad, cos(th)*rad);
 			}
 		ofEndShape();
+		ofSetColor(255);
+		//draw baked wave
+		
+		ofBeginShape();
+		int displayLength = bakedWaveCopy_left.size();
+		for (int a = 0; a < displayLength; a++) {
+			int rad = bakedWaveCopy_left[a] * 200 + 300;
+			float th = (2 * PI * a) / displayLength;
+			ofVertex(sin(th)*rad, cos(th)*rad);
+		}
+		ofEndShape();
+		
+		//draw zero crossings
 		//ofCircle(0,0,300);
 		ofSetColor(210, 0, 0);
 		for (int i = 0; i<sample.zeroxsLeft.size(); i++) {
@@ -103,7 +133,7 @@ void ofApp::draw() {
 				//´pendant: no need to recalc rad.
 				int rada = 300;
 				int radb = 320;
-				float th = (2 * PI * (sample.zeroxsLeft[i]/sample.getChannels()-sample.pointStart_frame)) / displayLength_frames;
+				float th = (2 * PI * (sample.zeroxsLeft[i]/sample.getChannels()-sample.pointStart_frame)) / bakedWaveSize;
 				ofDrawLine(sin(th)*rada,cos(th)*rada, sin(th)*radb, cos(th)*radb);
 			}
 		}
@@ -119,7 +149,9 @@ void ofApp::draw() {
 
 	ofSetColor(255);
 	char reportString[255];
-	sprintf(reportString, "volume: (%f) modify with -/+ keys\npan: (%f)\nspeed: (%f)\nplayback: %s\nposition: %f\npaused: %s", volume, pan, speed, bRingModulation ? "ring modulation" : "normal", sample.getPosition(), sample.getIsPaused() ? "yes" : "no");
+	sprintf(reportString, 
+		"startZerox: %ld \nendZerox: %ld \nspeed: (%f)\n", 
+		sample.startZerox, sample.endZerox, speed);
 
 	ofDrawBitmapString(reportString, 80, 380);
 
@@ -172,6 +204,7 @@ void ofApp::keyReleased(int key) {
 }
 
 void ofApp::setStartFrame(long to) {
+	
 	if (to >= sample.pointEnd_frame) {
 		sample.pointEnd_frame = to + 1;
 	}
@@ -183,9 +216,12 @@ void ofApp::setStartFrame(long to) {
 	if (sample.pointEnd_frame > maxEnd) {
 		sample.pointEnd_frame = maxEnd;
 	}
-	
+
+	sample.snapPoints();
+	updateBakedWave_flag = true;
 };
 void ofApp::setEndFrame(long to) {
+	
 	if (to <= sample.pointStart_frame) {
 		sample.pointStart_frame = to - 1;
 	}
@@ -198,7 +234,8 @@ void ofApp::setEndFrame(long to) {
 		sample.pointStart_frame = minstart;
 	}
 	
-	
+	sample.snapPoints();
+	updateBakedWave_flag = true;
 };
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y) {
@@ -220,9 +257,12 @@ void ofApp::mouseDragged(int x, int y, int button) {
 	float heightPct = ((height - y) / height);*/
 	mouseMoved(x, y);
 	int width = ofGetWidth();
+
 	long ssf = ((long)(sample.getLength_frames()*startPointDraggable.position[0])) / width;
 	setStartFrame(ssf);
 	setEndFrame(((long)(sample.getLength_frames()*endPointDraggable.position[0])) / width);
+
+	applyDraggableConstraints();
 }
 
 //--------------------------------------------------------------
@@ -248,10 +288,9 @@ void ofApp::windowResized(int w, int h) {
 //--------------------------------------------------------------
 void ofApp::audioRequested(float * output, int bufferSize, int nChannels) {
 
-	float leftScale = 1 - pan;
-	float rightScale = pan;
-
+	unique_lock<mutex> lock(audioMutex);
 	for (int i = 0; i < bufferSize; i++) {
+		/*
 		// mono
 		if (sample.getChannels() == 1) {
 			float smp = sample.update();
@@ -268,6 +307,19 @@ void ofApp::audioRequested(float * output, int bufferSize, int nChannels) {
 			lAudio[i] = output[i*nChannels] = 0.0;
 			rAudio[i] = output[i*nChannels + 1] = 0.0;
 		}
+		*/
+		if (bakedWaveSize > 0) {
+			waveHeader = waveHeader%bakedWaveSize;
+			output[i*nChannels] = bakedWave_left[waveHeader];
+			output[i*nChannels + 1] = bakedWave_left[waveHeader];
+			waveHeader++;
+		}
+		else {
+			waveHeader++;
+			output[i*nChannels] = cos(waveHeader / 1024)/2;
+		}
+		//output[i*nChannels + 1] = bakedWave_left[i / nChannels];
+		
 	}
 }
 

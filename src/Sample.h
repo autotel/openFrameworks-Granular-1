@@ -60,6 +60,7 @@ public:
 	void	returnSamples(vector<float> * _WaveForm);
 	void	generateWaveForm(vector<MiniMaxima> * _WaveForm);
 
+	
 	void	drawWaveForm(int _x, int _y, int _w, int _h, vector<MiniMaxima> * _WaveForm);
     // public variables
     char* 	myData;
@@ -69,6 +70,11 @@ public:
 	
 	vector<unsigned int> zeroxsLeft;
 	void calculateZeroxs();
+	void	setPointsSnapping(long, long);
+	void	snapPoints();
+	long startZerox;
+	long endZerox;
+
 private:
 
 

@@ -124,6 +124,25 @@ void Sample::calculateZeroxs() {
 	}
 }
 
+void Sample::setPointsSnapping(long start_spl, long end_spl) {
+	long nearest_index_st = 30;
+	long nearest_index_end = 30;
+	for (int a = 0; a < zeroxsLeft.size(); a++) {
+		if (abs((long)zeroxsLeft[a] - start_spl) < abs((long)zeroxsLeft[nearest_index_st] - start_spl)) {
+			nearest_index_st = a;
+		}
+		if (abs((long)zeroxsLeft[a] - end_spl) < abs((long)zeroxsLeft[nearest_index_end] - end_spl)) {
+			nearest_index_end = a;
+		}
+	}
+	startZerox = nearest_index_st;
+	endZerox = nearest_index_end;
+	pointStart_frame = zeroxsLeft[nearest_index_st]/myChannels;
+	pointEnd_frame = zeroxsLeft[nearest_index_end] / myChannels;
+}
+void Sample::snapPoints() {
+	setPointsSnapping(pointStart_frame*myChannels, pointEnd_frame*myChannels);
+}
 void Sample::generateWaveForm(vector<MiniMaxima> * _waveForm)
 {
 
