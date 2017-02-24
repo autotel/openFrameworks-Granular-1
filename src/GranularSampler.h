@@ -10,7 +10,7 @@ class GranularSampler
 {
 private:
 
-	draggable startPointDraggable;
+	
 public:
 	//constructor and destructor
 	GranularSampler();
@@ -53,7 +53,7 @@ public:
 
 	int drawingCenter[2];
 	int drawingSize = 300;
-
+	draggable startPointDraggable;
 	long pointStart_frame;
 	long pointEnd_frame;
 

@@ -21,7 +21,7 @@ void GranularSampler::setup(Sample & _sample, int n)
 
 	drawingCenter[0] = 0;// ofGetWidth() / 2;
 	drawingCenter[1] = 0;// ofGetHeight() / 2;
-	int triggerKeys[] = { 'q','w', 'e', 'r', 't','y','u', 'i', 'o', 'p' };
+	int triggerKeys[] = { 'q','w', 'e', 'r', 't','y','u', 'i', 'o', 'p','a', 's', 'd', 'f','g','h', 'j', 'k', 'l' };
 	myTriggerKey = triggerKeys[n];
 
 }
@@ -52,9 +52,12 @@ void GranularSampler::draw()
 	ofPushStyle();
 	ofPushMatrix();
 	ofNoFill();
-	
-	
-	drawingSize = 0.2*loopTargetLength / PI;
+
+	int dh = startPointDraggable.position[0] -drawingCenter[0];
+	int dv = startPointDraggable.position[1] - drawingCenter[1];
+	float dist = sqrt((dh*dh) + (dv*dv));
+	drawingSize = dist;
+
 	ofTranslate(drawingCenter[0], drawingCenter[1]);
 		
 		if (true||startPointDraggable.isUnderMouse) {
@@ -96,16 +99,15 @@ void GranularSampler::draw()
 				ofVertex(sin(th)*rad, cos(th)*rad);
 			}
 			ofEndShape();
-
 			
-			//draw line of length
-			ofLine(startPointDraggable.position[0], 0, startPointDraggable.position[0], startPointDraggable.position[1]);
+			
 		}
 	ofPopMatrix();
 	ofPopStyle();
 
 	startPointDraggable.draw();
-	
+	ofSetColor(0);
+	ofDrawBitmapString(myTriggerKey, startPointDraggable.position[0]-7, 5+startPointDraggable.position[1]);
 	
 }
 
@@ -154,18 +156,28 @@ bool GranularSampler::mouseMoved(int x, int y) {
 bool GranularSampler::mouseDragged(int x, int y, int button)
 {
 	if (startPointDraggable.isClicked) {
+		
 		int dh = x - drawingCenter[0];
 		int dv = y - drawingCenter[1];
 		float dist = sqrt((dh*dh) + (dv*dv));
 		float factor = dist / INTERFACE_RADIUS;
+
 		if (factor > 1)
 			factor = 1;
 
-		long ssf = ((long)sample.getLength_frames()*factor);
+		//long ssf = abs(dh*sample.getLength_frames()/ INTERFACE_RADIUS);
+		//set starting point to radial position 
+		long ssf = ((1+atan2(dh, dv) / (PI))*sample.getLength_frames())/2;
+		
 
-		setLength(dv*dv);
+
+		setLength(factor*sample.getLength_frames()/10);
+
 		setStartFrame(ssf);
+
 		applyDraggableConstraints();
+
+
 	}
 	return startPointDraggable.isClicked;
 }

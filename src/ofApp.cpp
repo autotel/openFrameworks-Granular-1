@@ -13,12 +13,22 @@ void ofApp::setup() {
 	//while (!sample.isLoaded) {}
 
 	sample.load("Kupferberg-Tuli_No-Deposit.wav"); // supports mono or stereo .wav files
+	sample2.load("Kupferberg-Tuli_No-Deposit.wav"); // supports mono or stereo .wav files
 	//sample.setLooping(true);
 	sample.play();
 	sample.generateWaveForm(&waveForm);
 
-	for (int s = 0; s < NUMSAMPLERS;s++)
-		granular[s].setup(sample,s);
+	sample2.play();
+	sample2.generateWaveForm(&waveForm);
+
+	for (int s = 0; s < NUMSAMPLERS; s++) {
+		if (s < NUMSAMPLERS / 2) {
+			granular[s].setup(sample, s);
+		}
+		else {
+			granular[s].setup(sample2, s);
+		}
+	}
 	
 	
 
@@ -49,8 +59,13 @@ void ofApp::update() {
 	last_x = curr_x;
 	curr_x = mouseX;
 	deltax = (1.0f + fabs(curr_x - last_x)) / 1.0f;
-	for (int s = 0; s < NUMSAMPLERS; s++)
-	granular[s].controlUpdate();
+	for (int s = 0; s < NUMSAMPLERS; s++) {
+		granular[s].controlUpdate();
+		if (granular[s].startPointDraggable.isClicked) {
+			granular[s].retriggerEnvelope();
+		}
+	}
+	
 
 }
 
@@ -64,15 +79,14 @@ void ofApp::draw() {
 
 	
 
-	int deltaY = ofGetMouseY() - ofGetHeight() / 2;
-	int deltaX = ofGetMouseX() - ofGetWidth() / 2;
-	if (ofGetMousePressed()) {
+	
+	/*if (ofGetMousePressed()) {
 		ofPushMatrix();
 		ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2);
-			ofRotate(atan2(deltaY, deltaX) * 180 / PI);
-			sample.drawWaveForm(0, 0, INTERFACE_RADIUS, 100, &waveForm);
+
+			//sample.drawWaveForm(0,0, INTERFACE_RADIUS, 100, &waveForm);
 		ofPopMatrix();
-	}
+	}*/
 	ofPushMatrix();
 
 	ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2);

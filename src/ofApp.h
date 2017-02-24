@@ -39,11 +39,11 @@ public:
 	float   * rAudio;
 	//sample loader is passed to granulars
 	Sample sample;
-	
+	Sample sample2;
 	GranularSampler granular[NUMSAMPLERS];
 
 	vector<MiniMaxima> waveForm;
-
+	vector<MiniMaxima> waveForm2;
 	
 
 	float deltax;
