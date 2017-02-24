@@ -40,7 +40,7 @@ public:
 	//sample loader is passed to granulars
 	Sample sample;
 	
-	GranularSampler sampler[NUMSAMPLERS];
+	GranularSampler granular[NUMSAMPLERS];
 
 	vector<MiniMaxima> waveForm;
 

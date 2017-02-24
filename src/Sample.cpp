@@ -23,8 +23,6 @@ Sample::Sample()
 	position = 0;
 	speed = 1.0;
 	soundStatus = NONE;
-	pointStart_frame = 0;
-	pointEnd_frame = 0;
 }
 
 // constructor takes a wav path
@@ -34,7 +32,7 @@ Sample::Sample(string tmpPath)
     speed = 1.0;
     soundStatus = NONE;
 
-	pointStart_frame = 0;
+	//pointStart_frame = 0;
 
     myPath = tmpPath;
     read();
@@ -45,7 +43,7 @@ void Sample::setPath(string tmpPath)
     myPath = tmpPath;
 
 }
-
+/*
 void Sample::setLooping(bool loop)
 {
     if(loop) {
@@ -56,7 +54,7 @@ void Sample::setLooping(bool loop)
     else {
         soundStatus &= ~LOOPING;
     }
-}
+}*/
 
 bool Sample::getIsLooping()
 {
@@ -124,36 +122,43 @@ void Sample::calculateZeroxs() {
 	}
 }
 
-void Sample::setPointsSnapping(long start_spl, long end_spl) {
+void Sample::snapPoints(long&pointStart_frame, long&pointEnd_frame) {
+
 	long nearest_index_st = 30;
 	long nearest_index_end = 30;
+
+	long pointEnd_spl = pointEnd_frame * 2;
+	long pointStart_spl =pointStart_frame * 2;
+
 	for (int a = 0; a < zeroxsLeft.size(); a++) {
-		if (abs((long)zeroxsLeft[a] - start_spl) < abs((long)zeroxsLeft[nearest_index_st] - start_spl)) {
+		//snap pointStart to nearest zero crossing in sample position
+		if (abs((long)zeroxsLeft[a] - pointStart_spl) < abs((long)zeroxsLeft[nearest_index_st] - pointStart_spl)) {
 			nearest_index_st = a;
 		}
-		if (abs((long)zeroxsLeft[a] - end_spl) < abs((long)zeroxsLeft[nearest_index_end] - end_spl)) {
+		//same for the pointEnd
+		if (abs((long)zeroxsLeft[a] - pointEnd_spl) < abs((long)zeroxsLeft[nearest_index_end] - pointEnd_spl)) {
 			nearest_index_end = a;
 		}
 	}
-	startZerox = nearest_index_st;
-	endZerox = nearest_index_end;
-	if (nearest_index_st > 0&& nearest_index_st < zeroxsLeft.size()) {
+	/*int startZerox = nearest_index_st;
+	int endZerox = nearest_index_end;*/
+	if (nearest_index_st > 0 && nearest_index_st < zeroxsLeft.size()) {
 		pointStart_frame = zeroxsLeft[nearest_index_st] / myChannels;
 		pointEnd_frame = zeroxsLeft[nearest_index_end] / myChannels;
 	}
 }
-void Sample::snapPoints() {
-	setPointsSnapping(pointStart_frame*myChannels, pointEnd_frame*myChannels);
-}
+
 void Sample::generateWaveForm(vector<MiniMaxima> * _waveForm)
 {
 
 	_waveForm->clear();
 
-	bool loopState = getIsLooping();
-	setLooping(false);
-	bool playState = getIsPlaying();
-	double tmpSpeed = getSpeed();
+	//bool loopState = getIsLooping();
+	//setLooping(false);
+	//bool playState = getIsPlaying();
+	//double tmpSpeed = getSpeed();
+	iterate_start();
+	//pendant: this is overhead, the iterator fnc iterate_next() should not vary according to the playback speed
 	setSpeed(1.0f);
     play();
 	// waveform display method based on this discussion http://answers.google.com/answers/threadview/id/66003.html
@@ -167,12 +172,12 @@ void Sample::generateWaveForm(vector<MiniMaxima> * _waveForm)
 		for (int i = 0; i < 256; i++){
 
 		    if(myChannels == 1) {
-                sampleL = update();
+                sampleL = iterate_next();
                 sampleR = sampleL;
 		    }
 		    else {
-                sampleL = update()*0.5;
-                sampleR = update()*0.5;
+                sampleL = iterate_next()*0.5;
+                sampleR = iterate_next()*0.5;
 		    }
 
 			mm.minL = MIN(mm.minL, sampleL);
@@ -187,10 +192,10 @@ void Sample::generateWaveForm(vector<MiniMaxima> * _waveForm)
  		//cout << mm.minR << " :: " << mm.maxR << " :: " << mm.minL << " :: " << mm.maxL << endl;
 	}
 
-	position = 0;
-	setLooping(loopState);
-	setSpeed(tmpSpeed);
-	if(playState) play();
+	//position = 0;
+	//setLooping(loopState);
+	//setSpeed(tmpSpeed);
+	//if(playState) play();
 }
 
 void Sample::drawWaveForm(int _x, int _y, int _w, int _h, vector<MiniMaxima> * _waveForm)
@@ -227,7 +232,7 @@ void Sample::drawWaveForm(int _x, int _y, int _w, int _h, vector<MiniMaxima> * _
         ofLine(position/waveFormDisplayScale, -(float)_h*0.5, position/waveFormDisplayScale, (float)_h*1.5);
     }
 	ofNoFill();
-	ofDrawRectangle(2*pointStart_frame/waveFormDisplayScale, -(float)_h*0.5, 2 * (pointEnd_frame-pointStart_frame) / waveFormDisplayScale, (float)_h*2.0);
+	//ofDrawRectangle(2*pointStart_frame/waveFormDisplayScale, -(float)_h*0.5, 2 * (pointEnd_frame-pointStart_frame) / waveFormDisplayScale, (float)_h*2.0);
 	glPopMatrix();
 }
 
@@ -271,7 +276,29 @@ int Sample::getSampleRate()
 {
     return mySampleRate;
 }
+void Sample::iterate_start() {
+	position = 0;
+};
+double Sample::iterate_next()
+{
+	long length = getLength();
+	double remainder;
+	short* buffer = (short *)myData;
 
+	position = (position + speed);
+	remainder = position - (long)position;
+
+	// check if reached EOF
+	if ((long)position>length) {
+		soundStatus &= ~PLAYING;
+		return 0;
+	}
+
+	output = (double)((1.0 - remainder) * buffer[1 + (long)position] + remainder * buffer[2 + (long)position]) / 32767.0;//linear interpolation
+
+	return(output);
+}
+/*
 double Sample::update()
 {
     if(!(soundStatus & PLAYING)) return 0;
@@ -311,16 +338,16 @@ double Sample::update()
 
 	return(output);
 }
-
+*/
 double Sample::getSampleN(long pos) {
 
 	short* buffer = (short *)myData;
 	long remainder = pos - (long)pos;
-	if (soundStatus&LOADED) {
+	//if (soundStatus&LOADED) {
 		output = (double)((1.0 - remainder) * buffer[1 + (long)pos] + remainder * buffer[2 + (long)pos]) / 32767.0;//linear interpolation
 		return(output);
-	}
-	else { return(0); }
+	//}
+	//else { return(0); }
 
 }
 

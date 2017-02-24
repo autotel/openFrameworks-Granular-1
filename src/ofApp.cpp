@@ -13,12 +13,12 @@ void ofApp::setup() {
 	//while (!sample.isLoaded) {}
 
 	sample.load("Kupferberg-Tuli_No-Deposit.wav"); // supports mono or stereo .wav files
-	sample.setLooping(true);
+	//sample.setLooping(true);
 	sample.play();
 	sample.generateWaveForm(&waveForm);
 
 	for (int s = 0; s < NUMSAMPLERS;s++)
-		sampler[s].setup(sample, 100, 100*s);
+		granular[s].setup(sample, 0, (ofGetHeight()/2)+30*s);
 	
 	
 
@@ -50,27 +50,28 @@ void ofApp::update() {
 	curr_x = mouseX;
 	deltax = (1.0f + fabs(curr_x - last_x)) / 1.0f;
 	for (int s = 0; s < NUMSAMPLERS; s++)
-	sampler[s].controlUpdate();
+	granular[s].controlUpdate();
 
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-	if (sampler[0].startPointDraggable.isClicked)
+	/*if (granular[0].startPointDraggable.isClicked)
 	sample.drawWaveForm(0, 0, ofGetWidth(), 100, &waveForm);
-
+	*/
+	sample.drawWaveForm(0, 0, ofGetWidth(), 100, &waveForm);
 	ofSetBackgroundColor(0);
 	for (int s = 0; s < NUMSAMPLERS; s++)
-	sampler[s].draw();
-
+	granular[s].draw();
+	/*
 	ofSetColor(255);
 	char reportString[255];
-	sprintf(reportString, 
+	/*sprintf(reportString, 
 		"startZerox: %ld \nendZerox: %ld \nspeed: (%f)\nllen_fr: %ld", 
-		sampler[0].sample.startZerox, sampler[0].sample.endZerox, speed,sampler[0].sample.pointStart_frame- sampler[0].sample.pointEnd_frame);
-
-	ofDrawBitmapString(reportString, 80, 380);
+		granular[0].startZerox, granular[0].endZerox, speed,granular[0].pointStart_frame- granular[0].pointEnd_frame);
+		
+	ofDrawBitmapString(reportString, 80, 380);*/
 
 	ofSetColor(127);
 	for (int a = 0; a < bufferSize*2; a++) {
@@ -96,18 +97,18 @@ void ofApp::keyPressed(int key) {
 	if (key == ' ')
 	{
 		toggle = !toggle;
-		sampler[0].sample.setPaused(toggle);
+		granular[0].sample.setPaused(toggle);
 	}
 
 
 
 	if (key == 's')
 	{
-		sampler[0].sample.stop();
+		granular[0].sample.stop();
 	}
 	if (key == 'd')
 	{
-		sampler[0].sample.play();
+		granular[0].sample.play();
 	}
 }
 
@@ -119,7 +120,7 @@ void ofApp::keyReleased(int key) {
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y) {
 	for (int s = 0; s < NUMSAMPLERS; s++)
-	sampler[s].mouseMoved(x, y);
+	granular[s].mouseMoved(x, y);
 }
 
 //--------------------------------------------------------------
@@ -130,14 +131,14 @@ void ofApp::mouseDragged(int x, int y, int button) {
 	float heightPct = ((height - y) / height);*/
 	mouseMoved(x, y);
 	for (int s = 0; s < NUMSAMPLERS; s++)
-	sampler[s].mouseDragged(x, y, button);
+	granular[s].mouseDragged(x, y, button);
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
 	/*bRingModulation = true;*/
 	for (int s = 0; s < NUMSAMPLERS; s++)
-	sampler[s].mousePressed(x, y, button);
+	granular[s].mousePressed(x, y, button);
 	
 }
 
@@ -145,7 +146,7 @@ void ofApp::mousePressed(int x, int y, int button) {
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button) {
 	for (int s = 0; s < NUMSAMPLERS; s++)
-	sampler[s].mouseReleased(x,y,button);
+	granular[s].mouseReleased(x,y,button);
 }
 
 //--------------------------------------------------------------
@@ -155,11 +156,11 @@ void ofApp::windowResized(int w, int h) {
 //--------------------------------------------------------------
 void ofApp::audioRequested(float * output, int bufferSize, int nChannels) {
 
-	unique_lock<mutex> lock(sampler[0].audioMutex);
+	//unique_lock<mutex> lock(sampler[0].audioMutex);
 	for (int i = 0; i < bufferSize; i++) {
 		float monoSample = 0;
 		for (int s = 0; s < NUMSAMPLERS; s++)
-			monoSample += sampler[s].requestNextBakedSample(0)/NUMSAMPLERS;
+			monoSample += granular[s].requestNextBakedSample(0)/NUMSAMPLERS;
 		output[i*nChannels] = monoSample;
 		output[i*nChannels +1] = monoSample;
 

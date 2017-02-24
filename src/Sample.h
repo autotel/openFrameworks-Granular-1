@@ -36,7 +36,7 @@ public:
 	double  getSpeed();
 
 	void	setPath(string newPath);
-	void	setLooping(bool loop);
+	//void	setLooping(bool loop);
 	void	setPosition(double _position);
 	void    setPaused(bool bPaused);
     void    setSpeed(double speed);
@@ -45,7 +45,9 @@ public:
 	bool	read();
 	void	play();
 	void    stop();
-	double  update();
+	//double  update();
+	double  iterate_next();
+	void iterate_start();
 	double  getSampleN(long pos);
 
 	//double play(double frequency, double start, double end);
@@ -57,23 +59,21 @@ public:
 	long	getLength();
 	long	getLength_frames();
 
-	void	returnSamples(vector<float> * _WaveForm);
+	//void	returnSamples(vector<float> * _WaveForm);
 	void	generateWaveForm(vector<MiniMaxima> * _WaveForm);
 
 	
 	void	drawWaveForm(int _x, int _y, int _w, int _h, vector<MiniMaxima> * _WaveForm);
     // public variables
     char* 	myData;
-
+	/*
 	long pointStart_frame;
-	long pointEnd_frame;
-	
+	long pointEnd_frame;*/
+
 	vector<unsigned int> zeroxsLeft;
 	void calculateZeroxs();
-	void	setPointsSnapping(long, long);
-	void	snapPoints();
-	long startZerox;
-	long endZerox;
+	//void	setPointsSnapping(long, long);
+	void	snapPoints(long &_pstart, long &_pend);
 
 	bool isLoaded = false;
 
