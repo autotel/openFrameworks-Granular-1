@@ -205,7 +205,7 @@ void Sample::drawWaveForm(int _x, int _y, int _w, int _h, vector<MiniMaxima> * _
 
 	glPushMatrix();
 
-	glTranslated(_x, _y, 0);
+	glTranslated(_x, _y-_h, 0);
 
 	for (unsigned int i = 1; i < _waveForm->size(); i++){
 	    /*if(myChannels == 1) {*/
@@ -223,14 +223,14 @@ void Sample::drawWaveForm(int _x, int _y, int _w, int _h, vector<MiniMaxima> * _
 	
 
 	float waveFormDisplayScale = getLength()/_w;
-
+	/*
     if(myChannels == 1) {
         ofLine(position/waveFormDisplayScale, -(float)_h*0.0, position/waveFormDisplayScale, (float)_h*2.0);
     }
     else
     {
         ofLine(position/waveFormDisplayScale, -(float)_h*0.5, position/waveFormDisplayScale, (float)_h*1.5);
-    }
+    }*/
 	ofNoFill();
 	//ofDrawRectangle(2*pointStart_frame/waveFormDisplayScale, -(float)_h*0.5, 2 * (pointEnd_frame-pointStart_frame) / waveFormDisplayScale, (float)_h*2.0);
 	glPopMatrix();

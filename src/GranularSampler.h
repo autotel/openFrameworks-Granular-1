@@ -4,6 +4,7 @@
 #include "GranularSampler.h"
 #include "draggable.h"
 #include "Sample.h"
+#include "globals.h"
 
 class GranularSampler
 {
@@ -15,14 +16,15 @@ public:
 	GranularSampler();
 	~GranularSampler();
 	//runtime events
-	void setup(Sample & _sample, int x, int y);
+	void setup(Sample & _sample, int n);
 	void controlUpdate();
 	void draw();
 	//user interaction listeners
-	void mouseMoved(int x, int y);
-	void mouseDragged(int x, int y, int button);
-	void mousePressed(int x, int y, int button);
-	void mouseReleased(int x, int y, int button);
+	bool mouseMoved(int x, int y);
+	bool mouseDragged(int x, int y, int button);
+	bool mousePressed(int x, int y, int button);
+	void retriggerEnvelope();
+	bool mouseReleased(int x, int y, int button);
 	//wave memory
 	float requestNextBakedSample(unsigned int);
 
@@ -54,6 +56,15 @@ public:
 
 	long pointStart_frame;
 	long pointEnd_frame;
+
+	int myNumber = 0;
+
+	float currentVolume = 0;
+	int envPosition = 0;
+	int envLength = 300000;
+	bool envelopeTriggered = false;
+
+	char myTriggerKey;
 	
 };
 

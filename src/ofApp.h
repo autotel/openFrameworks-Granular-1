@@ -1,10 +1,10 @@
 #ifndef _TEST_APP
 #define _TEST_APP
-#define NUMSAMPLERS 4
+
 
 #include "ofMain.h"
 #include "GranularSampler.h"
-
+#include "globals.h"
 
 class ofApp : public ofBaseApp {
 

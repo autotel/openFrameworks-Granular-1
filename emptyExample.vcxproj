@@ -180,6 +180,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\draggable.h" />
+    <ClInclude Include="src\globals.h" />
     <ClInclude Include="src\GranularSampler.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="src\Sample.h" />

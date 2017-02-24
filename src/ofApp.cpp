@@ -18,7 +18,7 @@ void ofApp::setup() {
 	sample.generateWaveForm(&waveForm);
 
 	for (int s = 0; s < NUMSAMPLERS;s++)
-		granular[s].setup(sample, 0, (ofGetHeight()/2)+30*s);
+		granular[s].setup(sample,s);
 	
 	
 
@@ -56,14 +56,35 @@ void ofApp::update() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-
+	
 	/*if (granular[0].startPointDraggable.isClicked)
 	sample.drawWaveForm(0, 0, ofGetWidth(), 100, &waveForm);
 	*/
-	sample.drawWaveForm(0, 0, ofGetWidth(), 100, &waveForm);
 	ofSetBackgroundColor(0);
-	for (int s = 0; s < NUMSAMPLERS; s++)
-	granular[s].draw();
+
+	
+
+	int deltaY = ofGetMouseY() - ofGetHeight() / 2;
+	int deltaX = ofGetMouseX() - ofGetWidth() / 2;
+	if (ofGetMousePressed()) {
+		ofPushMatrix();
+		ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2);
+			ofRotate(atan2(deltaY, deltaX) * 180 / PI);
+			sample.drawWaveForm(0, 0, INTERFACE_RADIUS, 100, &waveForm);
+		ofPopMatrix();
+	}
+	ofPushMatrix();
+
+	ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2);
+		for (int s = 0; s < NUMSAMPLERS; s++)
+			granular[s].draw();
+
+	ofPopMatrix();
+
+	
+
+	
+
 	/*
 	ofSetColor(255);
 	char reportString[255];
@@ -72,11 +93,11 @@ void ofApp::draw() {
 		granular[0].startZerox, granular[0].endZerox, speed,granular[0].pointStart_frame- granular[0].pointEnd_frame);
 		
 	ofDrawBitmapString(reportString, 80, 380);*/
-
+	/*
 	ofSetColor(127);
 	for (int a = 0; a < bufferSize*2; a++) {
 		ofLine(600 + a, 200, 600 + a, 200 + lAudio[a] * 200.0f);
-	}
+	}*/
 		
 
 }
@@ -110,6 +131,12 @@ void ofApp::keyPressed(int key) {
 	{
 		granular[0].sample.play();
 	}
+
+	for (int s = 0; s < NUMSAMPLERS; s++) {
+		if (granular[s].myTriggerKey == key) {
+			granular[s].retriggerEnvelope();
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -119,8 +146,12 @@ void ofApp::keyReleased(int key) {
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y) {
-	for (int s = 0; s < NUMSAMPLERS; s++)
-	granular[s].mouseMoved(x, y);
+	x -= ofGetWidth() / 2;
+	y -= ofGetHeight() / 2;
+	bool mouseCatched = false;
+	for (int s = 0; s < NUMSAMPLERS&&!mouseCatched; s++)
+		mouseCatched = granular[s].mouseMoved(x, y);
+
 }
 
 //--------------------------------------------------------------
@@ -130,15 +161,19 @@ void ofApp::mouseDragged(int x, int y, int button) {
 	float height = (float)ofGetHeight();
 	float heightPct = ((height - y) / height);*/
 	mouseMoved(x, y);
-	for (int s = 0; s < NUMSAMPLERS; s++)
-	granular[s].mouseDragged(x, y, button);
+	x -= ofGetWidth() / 2;
+	y -= ofGetHeight() / 2;
+	bool mouseCatched = false;
+	for (int s = 0; s < NUMSAMPLERS&&!mouseCatched; s++)
+		mouseCatched = granular[s].mouseDragged(x, y, button);
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
 	/*bRingModulation = true;*/
-	for (int s = 0; s < NUMSAMPLERS; s++)
-	granular[s].mousePressed(x, y, button);
+	bool mouseCatched = false;
+	for (int s = 0; s < NUMSAMPLERS&&!mouseCatched; s++)
+	mouseCatched=granular[s].mousePressed(x, y, button);
 	
 }
 

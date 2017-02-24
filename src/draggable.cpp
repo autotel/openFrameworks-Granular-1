@@ -37,7 +37,7 @@ void draggable::onMouseMoved(int x, int y) {
 		onDrag(x, y);
 	}
 
-	if ((abs(position[0] - x) < 2*radius) && (abs(position[1] - y) < 2*radius)) {
+	if ((abs(position[0] - x) < radius) && (abs(position[1] - y) < radius)) {
 		onMouseEnter();
 	}else if(isUnderMouse){
 		onMouseLeave();
