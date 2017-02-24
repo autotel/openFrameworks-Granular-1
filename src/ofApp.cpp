@@ -13,7 +13,7 @@ void ofApp::setup() {
 	//while (!sample.isLoaded) {}
 
 	sample.load("Kupferberg-Tuli_No-Deposit.wav"); // supports mono or stereo .wav files
-	sample2.load("Kupferberg-Tuli_No-Deposit.wav"); // supports mono or stereo .wav files
+	sample2.load("21246_jojonomomojo_68jazz03_pcm.wav"); // supports mono or stereo .wav files
 	//sample.setLooping(true);
 	sample.play();
 	sample.generateWaveForm(&waveForm);
@@ -27,6 +27,7 @@ void ofApp::setup() {
 		}
 		else {
 			granular[s].setup(sample2, s);
+			granular[s].envLength = 10000;
 		}
 	}
 	
@@ -61,9 +62,7 @@ void ofApp::update() {
 	deltax = (1.0f + fabs(curr_x - last_x)) / 1.0f;
 	for (int s = 0; s < NUMSAMPLERS; s++) {
 		granular[s].controlUpdate();
-		if (granular[s].startPointDraggable.isClicked) {
-			granular[s].retriggerEnvelope();
-		}
+		
 	}
 	
 
@@ -204,12 +203,16 @@ void ofApp::windowResized(int w, int h) {
 }
 //--------------------------------------------------------------
 void ofApp::audioRequested(float * output, int bufferSize, int nChannels) {
-
+		
 	//unique_lock<mutex> lock(sampler[0].audioMutex);
 	for (int i = 0; i < bufferSize; i++) {
 		float monoSample = 0;
-		for (int s = 0; s < NUMSAMPLERS; s++)
-			monoSample += granular[s].requestNextBakedSample(0)/NUMSAMPLERS;
+		for (int s = 0; s < NUMSAMPLERS; s++) {
+			monoSample += granular[s].requestNextBakedSample(0) / NUMSAMPLERS;
+			if (granular[s].startPointDraggable.isClicked) {
+				granular[s].retriggerEnvelope();
+			}
+		}
 		output[i*nChannels] = monoSample;
 		output[i*nChannels +1] = monoSample;
 

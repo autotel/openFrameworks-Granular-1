@@ -116,7 +116,7 @@ void Sample::calculateZeroxs() {
 		//pendant: faster positive zero cross calculation
 		if (((currentSample - lastSample > 0) && (currentSample > 0) && (lastSample < 0))||(currentSample==0)) {
 			zeroxsLeft.push_back(a_frame * chans);
-			printf("zerox @ %lld\n", a_frame*chans);
+			//printf("zerox @ %lld\n", a_frame*chans);
 		}
 		lastSample = currentSample;
 	}

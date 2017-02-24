@@ -63,7 +63,7 @@ void GranularSampler::draw()
 		if (true||startPointDraggable.isUnderMouse) {
 
 			//draw zero crossings
-			//ofCircle(0,0,300);
+			/*
 			ofSetColor(255, 0, 0,90);
 			for (int i = 0; i < sample.zeroxsLeft.size(); i++) {
 				if ((sample.zeroxsLeft[i] < pointEnd_frame * sample.getChannels())
@@ -74,7 +74,7 @@ void GranularSampler::draw()
 					float th = (2 * PI * (sample.zeroxsLeft[i] / sample.getChannels() - pointStart_frame)) / bakedWaveSize;
 					ofDrawLine(sin(th)*rada, cos(th)*rada, sin(th)*radb, cos(th)*radb);
 				}
-			}
+			}*/
 
 			//draw original wave
 			ofSetColor(0, 50, 50 , currentVolume * 255);
