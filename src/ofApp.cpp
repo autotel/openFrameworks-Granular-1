@@ -12,8 +12,8 @@ void ofApp::setup() {
 	//sample = Sample();
 	//while (!sample.isLoaded) {}
 
-	sample.load("Kupferberg-Tuli_No-Deposit.wav"); // supports mono or stereo .wav files
-	sample2.load("21246_jojonomomojo_68jazz03_pcm.wav"); // supports mono or stereo .wav files
+	sample.load("336679__gregstermatic__jazz-bass-a-7.wav"); 
+	sample2.load("21263__jojonomomojo__jazz008.wav");
 	//sample.setLooping(true);
 	sample.play();
 	sample.generateWaveForm(&waveForm);

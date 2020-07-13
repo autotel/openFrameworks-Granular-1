@@ -1,10 +1,20 @@
 # openFrameworks-Granular-1
 
-1- see what this does at https://www.youtube.com/watch?v=LBbfVmMTy4Y
-2- ask me if you need anything
+video: https://www.youtube.com/watch?v=LBbfVmMTy4Y
+blog post: https://autotel.co/portfolio/granular-synth-exercise/
 
+# making it work
 
-#Granular synth toy programming exercise.
+edit ofApp.cpp at the line where samples are loaded and write down the names of your own samples. The app looks for the samples in the "data" directory relative to the executable.
+
+modify the makefile so that OF_ROOT points to your actual of_root. 
+
+run `make`. The executable should appear at the `bin` directory.
+
+note: the last time I tried it in linux, it was working but not producing sound, it did not configure the sound server well. Didn't have time to figure out why.
+
+# Granular synth toy programming exercise.
+
 There are two samples, and a small portion of this sample is looped when the dot is triggered. The distance between the center of the screen and the dot will define the length of the granule (i.e. small portion of sound); while the polar position (i.e. position of the dot in a counter-clockwise fashion) determines the position, along the whole sample, from where the granule is taken.
 
 This program loads a sample in WAV PCM format, searches all zero crossings, and lets you play with the sample granules by dragging the circles. It snaps the start and endpoints of all the granules to the nearest zero crossing, effectively eliminating the jumps that occur otherwise. I chose this method instead of fade in/fade out, because it keeps better the original timbre of the sample.
