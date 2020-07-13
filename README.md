@@ -11,8 +11,6 @@ modify the makefile so that OF_ROOT points to your actual of_root.
 
 run `make`. The executable should appear at the `bin` directory.
 
-note: the last time I tried it in linux, it was working but not producing sound, it did not configure the sound server well. Didn't have time to figure out why.
-
 # Granular synth toy programming exercise.
 
 There are two samples, and a small portion of this sample is looped when the dot is triggered. The distance between the center of the screen and the dot will define the length of the granule (i.e. small portion of sound); while the polar position (i.e. position of the dot in a counter-clockwise fashion) determines the position, along the whole sample, from where the granule is taken.
